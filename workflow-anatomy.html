@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IslaSoft Return Lifecycle</title>
+<meta name="description" content="Interactive walkthrough of how a CPA practice management platform moves a client from intake to a filed, paid return.">
+<style>
+  /* ---- Design tokens (light) ---- */
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #f0f2f5;
+    --border: #dde1e7;
+    --text: #18202b;
+    --muted: #5d6877;
+    --accent: #0f6e78;        /* teal: active stage */
+    --accent-soft: #e2f2f3;
+    --done: #2f7d4f;
+    --done-soft: #e5f3ea;
+    --warn: #a35f00;
+    --warn-soft: #fbf0dc;
+    --danger: #b3261e;
+    --danger-soft: #fbe6e4;
+    --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+  /* ---- Dark tokens ---- */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f141a; --surface: #161d25; --surface-2: #1d2630; --border: #2b3642;
+      --text: #e6ebf1; --muted: #9aa6b4;
+      --accent: #4fc1cc; --accent-soft: #143238;
+      --done: #6cc68f; --done-soft: #16301f;
+      --warn: #e8a94a; --warn-soft: #34270f;
+      --danger: #f08a82; --danger-soft: #3a1a18;
+      --shadow: none; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f141a; --surface: #161d25; --surface-2: #1d2630; --border: #2b3642;
+    --text: #e6ebf1; --muted: #9aa6b4;
+    --accent: #4fc1cc; --accent-soft: #143238;
+    --done: #6cc68f; --done-soft: #16301f;
+    --warn: #e8a94a; --warn-soft: #34270f;
+    --danger: #f08a82; --danger-soft: #3a1a18;
+    --shadow: none; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .brand { font-weight: 700; letter-spacing: -.01em; font-size: 20px; }
+  .brand span { color: var(--accent); }
+  h1 { font-size: 26px; line-height: 1.2; margin: 4px 0 6px; letter-spacing: -.015em; }
+  .sub { color: var(--muted); margin: 0; max-width: 70ch; }
+  .tag { font-size: 12px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+
+  /* ---- Stage track ---- */
+  .track { padding: 20px 16px 14px; margin-bottom: 16px; }
+  .stages { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; position: relative; }
+  .stage { position: relative; text-align: center; padding: 0 2px; cursor: pointer; }
+  .stage .dot {
+    width: 34px; height: 34px; margin: 0 auto 8px; border-radius: 50%;
+    display: grid; place-items: center; font: 600 13px var(--mono);
+    background: var(--surface-2); color: var(--muted); border: 2px solid var(--border);
+    position: relative; z-index: 1; transition: all .2s;
+  }
+  .stage::before { /* connector line */
+    content: ""; position: absolute; top: 16px; left: -50%; width: 100%; height: 2px; background: var(--border);
+  }
+  .stage:first-child::before { display: none; }
+  .stage.done::before, .stage.active::before { background: var(--done); }
+  .stage .name { font-size: 13px; font-weight: 600; }
+  .stage .hint { font-size: 11.5px; color: var(--muted); }
+  .stage.done .dot { background: var(--done-soft); color: var(--done); border-color: var(--done); }
+  .stage.active .dot { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 0 5px var(--accent-soft); }
+  .stage.active .name { color: var(--accent); }
+  .stage.viewing .name { text-decoration: underline; text-underline-offset: 3px; }
+
+  .loop {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px;
+  }
+  .loop .bar {
+    grid-column: 3 / 5; border: 2px dashed var(--border); border-top: 0; height: 16px;
+    border-radius: 0 0 10px 10px; position: relative; transition: border-color .2s;
+  }
+  .loop .bar span {
+    position: absolute; left: 50%; top: 100%; transform: translate(-50%, 2px);
+    font-size: 11.5px; color: var(--muted); white-space: nowrap;
+  }
+  .loop.hot .bar { border-color: var(--danger); }
+  .loop.hot .bar span { color: var(--danger); font-weight: 600; }
+
+  /* ---- Main grid ---- */
+  .grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; }
+  .panel { padding: 18px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+
+  /* Readout */
+  .readout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .metric { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+  .metric .k { font-size: 12px; color: var(--muted); }
+  .metric .v { font-size: 22px; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .metric .v small { font-size: 12px; font-weight: 500; color: var(--muted); }
+  .metric.ok .v { color: var(--done); }
+  .metric.warn { background: var(--warn-soft); } .metric.warn .v { color: var(--warn); }
+  .metric.bad { background: var(--danger-soft); } .metric.bad .v { color: var(--danger); }
+  .alert { font-size: 13px; padding: 8px 12px; border-radius: 8px; margin-bottom: 14px; display: none; }
+  .alert.show { display: block; }
+  .alert.warn { background: var(--warn-soft); color: var(--warn); }
+  .alert.bad { background: var(--danger-soft); color: var(--danger); }
+  .alert.ok { background: var(--done-soft); color: var(--done); }
+
+  /* Controls */
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+  label.field { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  select, button { font: inherit; }
+  select { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
+  .btn { border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 9px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  .btn:hover { background: var(--surface-2); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.primary.reject { background: var(--danger); border-color: var(--danger); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn:focus-visible, .switch input:focus-visible + .slider, select:focus-visible, .stage:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; user-select: none; }
+  .switch input { position: absolute; opacity: 0; pointer-events: none; }
+  .slider { width: 38px; height: 22px; border-radius: 999px; background: var(--border); position: relative; transition: background .2s; flex: none; }
+  .slider::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .switch input:checked + .slider { background: var(--danger); }
+  .switch input:checked + .slider::after { transform: translateX(16px); }
+  .switch.disabled { opacity: .45; cursor: not-allowed; }
+
+  /* Stage detail */
+  .detail h3 { margin: 0 0 4px; font-size: 18px; }
+  .detail .lede { color: var(--muted); margin: 0 0 12px; }
+  dl.facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 0; font-size: 14px; }
+  dl.facts dt { color: var(--muted); }
+  dl.facts dd { margin: 0; }
+  code, .mono { font-family: var(--mono); font-size: 12.5px; }
+  code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+
+  /* Log + record */
+  .log { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; font-size: 13px; }
+  .log li { padding: 7px 0; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 78px 1fr; gap: 10px; }
+  .log li:last-child { border-bottom: 0; }
+  .log .t { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+  .log .rej { color: var(--danger); font-weight: 600; }
+  pre.record { margin: 0; background: var(--surface-2); border-radius: 8px; padding: 12px; font: 12px/1.5 var(--mono); overflow-x: auto; white-space: pre; }
+  .stack { display: grid; gap: 16px; }
+  .note { font-size: 12px; color: var(--muted); margin-top: 18px; }
+
+  /* ---- Phone layout: vertical track ---- */
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .stages { grid-template-columns: 1fr; gap: 0; }
+    .stage { display: grid; grid-template-columns: 34px 1fr; column-gap: 12px; text-align: left; padding: 0 0 12px; align-items: center; }
+    .stage .dot { margin: 0; grid-row: span 2; }
+    .stage::before { top: -12px; left: 16px; width: 2px; height: 14px; }
+    .loop { display: none; }
+    .stage[data-i="2"] .hint::after { content: " · ↺ returns here on reject"; }
+    .readout { grid-template-columns: 1fr 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand">Isla<span>Soft</span></div>
+      <h1>From intake to a filed, paid return</h1>
+      <p class="sub">One sample client moves through the seven stages of a practice-management workflow. Advance it step by step, turn on <strong>Reject</strong> to send it back from Review to Prep, and watch the due-date clock.</p>
+    </div>
+    <span class="tag">Simulation · sample data only</span>
+  </header>
+
+  <!-- Stage track -->
+  <section class="card track" aria-label="Workflow stages">
+    <ol class="stages" id="stages"></ol>
+    <div class="loop" id="loop" aria-hidden="true"><div class="bar"><span>↺ Reject sends it back to Prep</span></div></div>
+  </section>
+
+  <div class="grid">
+    <div class="stack">
+      <!-- Live readout + controls -->
+      <section class="card panel" aria-live="polite">
+        <h2>Live readout · Client SAMPLE-0001</h2>
+        <div class="readout">
+          <div class="metric"><div class="k">Current stage</div><div class="v" id="r-stage">—</div></div>
+          <div class="metric" id="m-days"><div class="k">Days to due date</div><div class="v" id="r-days">—</div></div>
+          <div class="metric"><div class="k">Sim date</div><div class="v" id="r-date" style="font-size:17px">—</div></div>
+          <div class="metric"><div class="k">Due date</div><div class="v" id="r-due" style="font-size:17px">—</div></div>
+          <div class="metric"><div class="k">Staff time logged</div><div class="v" id="r-hours">0.0 <small>h</small></div></div>
+          <div class="metric" id="m-rework"><div class="k">Review rejections</div><div class="v" id="r-rework">0</div></div>
+        </div>
+        <div class="alert" id="alert"></div>
+        <div class="controls">
+          <button class="btn primary" id="advance">Advance</button>
+          <label class="switch" id="rejectWrap" title="Only applies when the client is at Review">
+            <input type="checkbox" id="reject"><span class="slider"></span> Reject at Review
+          </label>
+          <button class="btn" id="reset">Reset</button>
+          <label class="field">Return type
+            <select id="form">
+              <option value="1040">Form 1040 (individual)</option>
+              <option value="1120S">Form 1120-S (S corp)</option>
+              <option value="1065">Form 1065 (partnership)</option>
+              <option value="1120">Form 1120 (C corp, calendar year)</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <!-- Stage detail -->
+      <section class="card panel detail" id="detail" aria-live="polite"></section>
+    </div>
+
+    <div class="stack">
+      <section class="card panel">
+        <h2>Activity log</h2>
+        <ul class="log" id="log"></ul>
+      </section>
+      <section class="card panel">
+        <h2>Record state (what the database holds)</h2>
+        <pre class="record" id="record"></pre>
+      </section>
+    </div>
+  </div>
+
+  <p class="note">Sample walkthrough. No real client data. Durations, rates and dates are made up to show how the stages fit together. Due dates are the original (unextended) deadlines for calendar-year filers, moved to the next business day where the date falls on a weekend (§7503).</p>
+</div>
+
+<script>
+/* ===== Static model ===== */
+// Each stage: sim days consumed on exit, hours logged on exit, and explanatory copy.
+const STAGES = [
+  { key: "onboarding", name: "Onboarding", hint: "e-sign engagement", days: 3, hours: 0.25,
+    lede: "The client signs the engagement letter electronically. That signature creates the client and return records.",
+    facts: {
+      Actor: "Client + admin",
+      Trigger: "Lead converted → engagement letter generated from template, sent for e-signature",
+      Writes: "<code>Client</code>, <code>Engagement</code> (signed PDF + audit trail), <code>Return</code> with computed <code>due_date</code>",
+      "Exit gate": "Signature event received from the e-sign provider (webhook)"
+    } },
+  { key: "docs", name: "Document Request", hint: "AI agent chases docs", days: 14, hours: 0.5,
+    lede: "An AI agent compares the organizer checklist and last year's source documents with what the client has uploaded, then asks only for what is missing.",
+    facts: {
+      Actor: "AI agent (staff can override)",
+      Trigger: "Engagement signed → checklist seeded from prior-year return (W-2s, 1099s, K-1s, 1098)",
+      Writes: "<code>DocRequest</code> rows (open/received/N/A), reminder schedule, portal uploads",
+      "Exit gate": "Every checklist item is received or marked N/A by staff"
+    } },
+  { key: "prep", name: "Prep", hint: "staff time logged", days: 6, hours: 4.5,
+    lede: "A preparer builds the return and workpapers. Every session is timed against the return for billing and capacity reporting.",
+    facts: {
+      Actor: "Staff preparer",
+      Trigger: "Docs complete → return assigned to a preparer's queue",
+      Writes: "<code>TimeEntry</code> (user, return, minutes, billable), workpaper links, review-ready flag",
+      "Exit gate": "Preparer marks the return ready for review"
+    } },
+  { key: "review", name: "Review", hint: "approve or reject", days: 3, hours: 1.0,
+    lede: "A senior or CPA reviews the return. Approve sends it on to filing. Reject sends it back to Prep with review notes, and the due-date clock keeps running.",
+    facts: {
+      Actor: "Senior / CPA reviewer",
+      Trigger: "Review-ready flag set",
+      Writes: "<code>ReviewNote</code> rows, decision (<code>approved</code> | <code>rejected</code>), reviewer sign-off",
+      "Exit gate": "Approve → Form 8879 / 8879-x sent to the client to sign. Reject → back to Prep"
+    } },
+  { key: "filed", name: "Filed", hint: "e-file accepted", days: 1, hours: 0.25,
+    lede: "Once the client signs the e-file authorization, the return is sent to the IRS. The stage closes when the IRS acknowledgment says Accepted.",
+    facts: {
+      Actor: "System + ERO",
+      Trigger: "Signed 8879 received",
+      Writes: "Submission ID, IRS ack status, <code>filed_at</code>; due-date clock stops",
+      "Exit gate": "Acknowledgment = Accepted (a rejected ack goes back to Prep)"
+    } },
+  { key: "invoiced", name: "Invoiced", hint: "payment link sent", days: 2, hours: 0.25,
+    lede: "The invoice is built from the fee schedule or from logged time, and the client gets a payment link.",
+    facts: {
+      Actor: "System (billing)",
+      Trigger: "Return filed",
+      Writes: "<code>Invoice</code> (lines, total), payment link URL, sent timestamp",
+      "Exit gate": "Payment processor confirms the charge (webhook)"
+    } },
+  { key: "paid", name: "Paid", hint: "engagement closed", days: 0, hours: 0,
+    lede: "Payment is posted and the engagement is closed. The record is ready to roll over to next year's organizer.",
+    facts: {
+      Actor: "System",
+      Trigger: "Payment webhook",
+      Writes: "<code>Payment</code>, invoice status = paid, engagement status = closed",
+      "Exit gate": "Terminal. Next tax year starts a new cycle from Document Request"
+    } }
+];
+
+// Original (unextended) due dates for calendar-year filers, tax year 2026, weekend-adjusted per §7503.
+const DUE = { "1040": "2027-04-15", "1120S": "2027-03-15", "1065": "2027-03-15", "1120": "2027-04-15" };
+const EXT_FORM = { "1040": "Form 4868", "1120S": "Form 7004", "1065": "Form 7004", "1120": "Form 7004" };
+const START_DATE = "2027-01-11";   // simulated intake date
+const RATE = 185;                  // placeholder blended hourly rate (USD)
+
+/* ===== State ===== */
+let state;
+function initState() {
+  const form = document.getElementById("form").value;
+  state = {
+    stage: 0, viewing: 0, form, simDate: START_DATE, hours: 0, rejections: 0,
+    filedAt: null, invoice: null, log: []
+  };
+  addLog(`Intake: client SAMPLE-0001, Form ${label(form)}, due ${fmt(DUE[form])}. Engagement letter sent for e-signature.`);
+}
+
+/* ===== Date helpers (UTC to avoid DST drift) ===== */
+const d = s => new Date(s + "T00:00:00Z");
+const iso = dt => dt.toISOString().slice(0, 10);
+const addDays = (s, n) => { const x = d(s); x.setUTCDate(x.getUTCDate() + n); return iso(x); };
+const diffDays = (a, b) => Math.round((d(b) - d(a)) / 86400000); // b - a
+const fmt = s => d(s).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+const label = f => f === "1120S" ? "1120-S" : f;
+
+/* ===== Transition logic ===== */
+function advance() {
+  const cur = STAGES[state.stage];
+  if (state.stage === STAGES.length - 1) return;
+
+  // Time passes and effort is logged on exit from the current stage.
+  state.simDate = addDays(state.simDate, cur.days);
+  state.hours += cur.hours;
+
+  // Review is the only branching node.
+  if (cur.key === "review" && document.getElementById("reject").checked) {
+    state.rejections++;
+    state.stage = 2; // back to Prep
+    addLog(`Reviewer REJECTED (#${state.rejections}). Review notes sent to the preparer; return goes back to Prep.`, true);
+    pulseLoop();
+  } else {
+    state.stage++;
+    const next = STAGES[state.stage];
+    addLog(transitionMessage(cur.key, next.key));
+    // Leaving Filed = IRS ack accepted: stop the due-date clock and bill from logged time.
+    if (cur.key === "filed") {
+      state.filedAt = state.simDate;
+      state.invoice = { id: "INV-SAMPLE-001", amount_usd: Math.round(state.hours * RATE), status: "sent" };
+    }
+    if (next.key === "paid") state.invoice.status = "paid";
+  }
+  state.viewing = state.stage;
+  render();
+}
+
+function transitionMessage(from, to) {
+  switch (from) {
+    case "onboarding": return "Engagement letter signed (e-sign webhook). AI agent sends a targeted request for missing documents.";
+    case "docs": return "Checklist complete (W-2, 1099-INT, 1098 received; 1099-B marked N/A). Return assigned to the preparer.";
+    case "prep": return `Preparer marked the return ready for review. ${STAGES[2].hours.toFixed(1)} h logged this pass.`;
+    case "review": return "Reviewer APPROVED. Form 8879 sent to the client for e-signature.";
+    case "filed": return "IRS acknowledgment: Accepted. Invoice generated and payment link emailed.";
+    case "invoiced": return "Payment received and posted. Engagement closed.";
+  }
+  return `Moved ${from} → ${to}.`;
+}
+
+function addLog(msg, rej = false) {
+  state.log.unshift({ t: state.simDate, msg, rej });
+}
+
+let loopTimer;
+function pulseLoop() {
+  const el = document.getElementById("loop");
+  el.classList.add("hot");
+  clearTimeout(loopTimer);
+  loopTimer = setTimeout(() => el.classList.remove("hot"), 1800);
+}
+
+/* ===== Rendering ===== */
+function render() {
+  // Stage track
+  const ol = document.getElementById("stages");
+  ol.innerHTML = STAGES.map((s, i) => {
+    const cls = i < state.stage ? "done" : i === state.stage ? "active" : "";
+    const view = i === state.viewing ? " viewing" : "";
+    const mark = i < state.stage ? "✓" : i + 1;
+    return `<li class="stage ${cls}${view}" data-i="${i}" tabindex="0" role="button"
+              aria-label="${s.name}${i === state.stage ? " (current)" : ""}. Show details">
+              <div class="dot">${mark}</div><div class="name">${s.name}</div><div class="hint">${s.hint}</div></li>`;
+  }).join("");
+
+  const cur = STAGES[state.stage];
+  const due = DUE[state.form];
+  const clockDate = state.filedAt || state.simDate;
+  const days = diffDays(clockDate, due);
+  const isFiled = state.filedAt !== null;
+
+  // Readout
+  document.getElementById("r-stage").textContent = cur.name;
+  document.getElementById("r-date").textContent = fmt(state.simDate);
+  document.getElementById("r-due").textContent = fmt(due);
+  document.getElementById("r-hours").innerHTML = `${state.hours.toFixed(2).replace(/0$/, "")} <small>h</small>`;
+  document.getElementById("r-rework").textContent = state.rejections;
+  document.getElementById("m-rework").className = "metric" + (state.rejections ? " bad" : "");
+
+  const mDays = document.getElementById("m-days");
+  const rDays = document.getElementById("r-days");
+  const alert = document.getElementById("alert");
+  alert.className = "alert";
+  if (isFiled) {
+    rDays.innerHTML = `${days} <small>early</small>`;
+    mDays.className = "metric ok";
+    alert.className = "alert show ok";
+    alert.textContent = `Filed ${fmt(state.filedAt)}: ${days} days before the ${fmt(due)} deadline. Due-date clock stopped.`;
+  } else {
+    rDays.textContent = days;
+    if (days < 0) {
+      mDays.className = "metric bad";
+      alert.className = "alert show bad";
+      alert.textContent = `Past due by ${-days} days. Without a timely ${EXT_FORM[state.form]}, failure-to-file penalties apply (§6651(a)(1)${state.form === "1120S" || state.form === "1065" ? "; per-shareholder/partner penalties under §6699 / §6698" : ""}).`;
+    } else if (days <= 21) {
+      mDays.className = "metric warn";
+      alert.className = "alert show warn";
+      alert.textContent = `${days} days left. Decide now: file by ${fmt(due)} or extend on ${EXT_FORM[state.form]}.`;
+    } else {
+      mDays.className = "metric";
+    }
+  }
+
+  // Controls
+  const atReview = cur.key === "review";
+  const rejectOn = document.getElementById("reject").checked;
+  const btn = document.getElementById("advance");
+  const terminal = state.stage === STAGES.length - 1;
+  btn.disabled = terminal;
+  btn.textContent = terminal ? "Complete" : atReview ? (rejectOn ? "Reject → back to Prep" : "Approve → File") : `Advance to ${STAGES[state.stage + 1].name}`;
+  btn.classList.toggle("reject", atReview && rejectOn);
+  document.getElementById("rejectWrap").classList.toggle("disabled", !atReview);
+  document.getElementById("form").disabled = state.stage > 0;
+
+  // Detail panel (for clicked / current stage)
+  const v = STAGES[state.viewing];
+  const tag = state.viewing === state.stage ? "Current stage" : state.viewing < state.stage ? "Completed" : "Upcoming";
+  document.getElementById("detail").innerHTML = `
+    <h2>Stage ${state.viewing + 1} of 7 · ${tag}</h2>
+    <h3>${v.name}</h3>
+    <p class="lede">${v.lede}</p>
+    <dl class="facts">${Object.entries(v.facts).map(([k, x]) => `<dt>${k}</dt><dd>${x}</dd>`).join("")}
+      <dt>Sim duration</dt><dd>${v.days} day${v.days === 1 ? "" : "s"} · ${v.hours} h logged</dd></dl>`;
+
+  // Log
+  document.getElementById("log").innerHTML = state.log.map(e =>
+    `<li><span class="t">${d(e.t).toLocaleDateString("en-US", { month: "short", day: "2-digit", timeZone: "UTC" })}</span><span class="${e.rej ? "rej" : ""}">${e.msg}</span></li>`
+  ).join("");
+
+  // Record (entity snapshot)
+  const record = {
+    client_id: "SAMPLE-0001",
+    return: {
+      form: label(state.form), tax_year: 2026,
+      status: cur.key, due_date: due,
+      days_to_due: isFiled ? null : days,
+      filed_at: state.filedAt, review_rejections: state.rejections
+    },
+    time_entries_hours: +state.hours.toFixed(2),
+    invoice: state.invoice
+  };
+  document.getElementById("record").textContent = JSON.stringify(record, null, 2);
+}
+
+/* ===== Wiring ===== */
+document.getElementById("advance").addEventListener("click", advance);
+document.getElementById("reset").addEventListener("click", () => { initState(); render(); });
+// Toggle can be pre-set before Review; it only takes effect on the Review decision.
+document.getElementById("reject").addEventListener("change", render);
+document.getElementById("form").addEventListener("change", () => { initState(); render(); });
+document.getElementById("stages").addEventListener("click", e => {
+  const li = e.target.closest(".stage"); if (!li) return;
+  state.viewing = +li.dataset.i; render();
+});
+document.getElementById("stages").addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const li = e.target.closest(".stage"); if (!li) return;
+  e.preventDefault(); state.viewing = +li.dataset.i; render();
+  document.querySelector(`.stage[data-i="${li.dataset.i}"]`).focus();
+});
+
+initState();
+render();
+</script>
+</body>
+</html>
