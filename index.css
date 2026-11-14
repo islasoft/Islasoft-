@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 215 25% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 12%;
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 215 25% 12%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 199 89% 48%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 351 83% 61%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 199 89% 48%;
+    --radius: 0.5rem;
+    --font-inter: 'Inter', system-ui, sans-serif;
+    --sidebar-background: 215 28% 17%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 25% 23%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 25% 23%;
+    --sidebar-ring: 199 89% 48%;
+    --chart-1: 199 89% 48%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 351 83% 61%;
+    --chart-5: 262 83% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-inter);
+    font-feature-settings: "tnum" on, "lnum" on;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-inter);
+  }
+}
+
+/* Tabular numbers for financial data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F1F5F9; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* Sidebar nav active state */
+.nav-item-active {
+  border-left: 3px solid #0EA5E9;
+  background-color: rgba(14, 165, 233, 0.12);
+  color: #F8FAFC;
+}
+
+.nav-item {
+  border-left: 3px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.nav-item:hover {
+  background-color: rgba(255,255,255,0.07);
+  color: #F8FAFC;
+}
