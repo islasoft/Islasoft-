@@ -1,0 +1,107 @@
+{
+  "name": "CompanySettings",
+  "type": "object",
+  "properties": {
+    "company_name": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "tagline": {
+      "type": "string",
+      "description": "Company tagline (e.g., Practice Manager)"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Company logo URL"
+    },
+    "qr_code_image_url": {
+      "type": "string",
+      "description": "QR code image URL for invoice payments"
+    },
+    "address": {
+      "type": "string",
+      "description": "Street address"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "zip_code": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "from_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email address to use as sender for all outgoing emails"
+    },
+    "website": {
+      "type": "string"
+    },
+    "client_intake_sheet_id": {
+      "type": "string",
+      "description": "Google Sheets ID for master client intake form"
+    },
+    "drive_root_folder_id": {
+      "type": "string",
+      "description": "Google Drive folder ID where all client portal folders will be created"
+    },
+    "drive_root_folder_name": {
+      "type": "string",
+      "description": "Display name of the root Google Drive folder"
+    },
+    "quickbooks_realm_id": {
+      "type": "string",
+      "description": "QuickBooks company ID"
+    },
+    "quickbooks_access_token": {
+      "type": "string",
+      "description": "QuickBooks OAuth access token"
+    },
+    "quickbooks_refresh_token": {
+      "type": "string",
+      "description": "QuickBooks OAuth refresh token"
+    },
+    "quickbooks_token_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the QuickBooks access token expires"
+    },
+    "quickbooks_connected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether QuickBooks is connected"
+    },
+    "quickbooks_connected_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When QuickBooks was connected"
+    },
+    "subscription_tier": {
+      "type": "string",
+      "enum": [
+        "trial",
+        "paid",
+        "forever",
+        "expired"
+      ],
+      "description": "Subscription tier for this firm"
+    },
+    "trial_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the trial expires (for trial tier)"
+    }
+  },
+  "required": [
+    "company_name"
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "name": "Task",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Task title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Task description"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Associated client"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Associated project"
+    },
+    "project_name": {
+      "type": "string"
+    },
+    "assigned_to_id": {
+      "type": "string",
+      "description": "Assigned team member"
+    },
+    "assigned_to_name": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "todo",
+        "in_progress",
+        "waiting",
+        "completed"
+      ],
+      "default": "todo"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "parent_task_id": {
+      "type": "string"
+    },
+    "blocked_by_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "time_logged": {
+      "type": "number",
+      "default": 0
+    },
+    "estimated_hours": {
+      "type": "number"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "email",
+        "message",
+        "ai_generated"
+      ],
+      "default": "manual"
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "ai_confidence_score": {
+      "type": "number"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "title",
+    "priority",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        },
+        {
+          "data.assigned_to_id": "{{user.id}}"
+        },
+        {
+          "data.project_id": {
+            "$in": {
+              "collection": "Project",
+              "field": "id",
+              "filter": {
+                "data.assigned_to_id": "{{user.id}}"
+              }
+            }
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.assigned_to_id": "{{user.id}}"
+        },
+        {
+          "data.project_id": {
+            "$in": {
+              "collection": "Project",
+              "field": "id",
+              "filter": {
+                "data.assigned_to_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

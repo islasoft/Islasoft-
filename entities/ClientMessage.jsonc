@@ -1,0 +1,123 @@
+{
+  "name": "ClientMessage",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client this message is for"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "sender_id": {
+      "type": "string"
+    },
+    "sender_name": {
+      "type": "string"
+    },
+    "sender_type": {
+      "type": "string",
+      "enum": [
+        "client",
+        "staff"
+      ]
+    },
+    "recipient_id": {
+      "type": "string"
+    },
+    "recipient_name": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "read_by_client": {
+      "type": "boolean",
+      "default": false
+    },
+    "read_by_staff": {
+      "type": "boolean",
+      "default": false
+    },
+    "related_project_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "client_id",
+    "sender_id",
+    "sender_name",
+    "sender_type",
+    "content"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.sender_id": "{{user.id}}"
+        },
+        {
+          "data.recipient_id": "{{user.id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        },
+        {
+          "data.sender_id": "{{user.id}}"
+        },
+        {
+          "data.recipient_id": "{{user.id}}"
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.sender_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

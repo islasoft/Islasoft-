@@ -1,0 +1,155 @@
+{
+  "name": "SharedDocument",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Reference to client"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "document_name": {
+      "type": "string",
+      "description": "Name of the document"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "tax_return",
+        "financial_statement",
+        "engagement_letter",
+        "invoice",
+        "other"
+      ]
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL to the uploaded file"
+    },
+    "uploaded_by_id": {
+      "type": "string"
+    },
+    "uploaded_by_name": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "viewed_by_client": {
+      "type": "boolean",
+      "default": false
+    },
+    "viewed_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "client_id",
+    "document_name",
+    "file_url"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "$or": [
+          {
+            "role": "admin"
+          },
+          {
+            "team_category": "cpa"
+          },
+          {
+            "team_category": "senior_staff"
+          },
+          {
+            "team_category": "staff"
+          }
+        ]
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.user_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.user_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

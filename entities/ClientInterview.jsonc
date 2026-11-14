@@ -1,0 +1,245 @@
+{
+  "name": "ClientInterview",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Reference to Client"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "client_email": {
+      "type": "string"
+    },
+    "engagement_letter_id": {
+      "type": "string",
+      "description": "Reference to the engagement letter that triggered this interview"
+    },
+    "accountant_id": {
+      "type": "string",
+      "description": "Responsible accountant (User ID)"
+    },
+    "accountant_name": {
+      "type": "string"
+    },
+    "accountant_email": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_scheduling",
+        "scheduled",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending_scheduling"
+    },
+    "meeting_link": {
+      "type": "string",
+      "description": "Google Meet or calendar scheduling URL"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the meeting is scheduled"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "default": 60
+    },
+    "team_attendees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Isla staff members invited to the meeting"
+    },
+    "client_additional_attendees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Additional attendees the client wants to bring (max 2)"
+    },
+    "suggested_projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "project_type": {
+            "type": "string"
+          },
+          "project_category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "AI-suggested projects based on intake data"
+    },
+    "document_checklist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "description": "Document checklist for the client to bring to the interview"
+    },
+    "meeting_notes": {
+      "type": "string",
+      "description": "Accountant notes after the meeting"
+    },
+    "scope_changed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether scope changed after the meeting, triggering a new engagement letter"
+    },
+    "transcript_drive_id": {
+      "type": "string",
+      "description": "Google Drive file ID of the meeting transcript"
+    },
+    "scheduling_token": {
+      "type": "string",
+      "description": "Secure token used in the public scheduling confirmation URL"
+    },
+    "link_sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "prep_generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When AI prep materials were generated"
+    }
+  },
+  "required": [
+    "client_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        },
+        {
+          "data.accountant_id": "{{user.id}}"
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.accountant_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

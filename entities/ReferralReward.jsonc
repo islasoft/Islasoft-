@@ -1,0 +1,122 @@
+{
+  "name": "ReferralReward",
+  "type": "object",
+  "properties": {
+    "referrer_client_id": {
+      "type": "string",
+      "description": "Client who made the referral"
+    },
+    "referrer_client_name": {
+      "type": "string"
+    },
+    "referred_client_id": {
+      "type": "string",
+      "description": "Client who was referred"
+    },
+    "referred_client_name": {
+      "type": "string"
+    },
+    "referral_code": {
+      "type": "string",
+      "description": "The referral code used"
+    },
+    "reward_type": {
+      "type": "string",
+      "enum": [
+        "credit",
+        "discount",
+        "gift_card"
+      ],
+      "default": "credit",
+      "description": "Type of reward"
+    },
+    "reward_value": {
+      "type": "number",
+      "description": "Dollar value of the reward"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "earned",
+        "redeemed",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Current status of the reward"
+    },
+    "earned_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date reward was earned (after referred client's first payment)"
+    },
+    "redeemed_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date reward was redeemed"
+    },
+    "redeemed_on_invoice_id": {
+      "type": "string",
+      "description": "Invoice where the reward was applied"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "referrer_client_id",
+    "referred_client_id",
+    "reward_type",
+    "reward_value"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

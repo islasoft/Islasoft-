@@ -1,0 +1,312 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Reference to client"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "project_type": {
+      "type": "string",
+      "enum": [
+        "individual_tax_1040",
+        "business_tax_1120",
+        "s_corp_tax_1120s",
+        "partnership_tax_1065",
+        "nonprofit_tax_990",
+        "amended_tax_1040x",
+        "extension_filing",
+        "estimated_tax_quarterly",
+        "k1_preparation",
+        "tax_planning_session",
+        "entity_formation",
+        "s_corp_election_2553",
+        "entity_classification_8832",
+        "entity_conversion",
+        "operating_agreement_bylaws",
+        "holding_company_structure",
+        "dissolution_closure",
+        "sunbiz_annual_report",
+        "monthly_bookkeeping",
+        "quarterly_bookkeeping",
+        "annual_bookkeeping",
+        "bank_reconciliations",
+        "chart_of_accounts_setup",
+        "journal_entry_adjustments",
+        "financial_statement_prep",
+        "quickbooks_setup",
+        "quickbooks_review",
+        "payroll_setup",
+        "payroll_processing",
+        "quarterly_payroll_941",
+        "annual_payroll_w2",
+        "1099_preparation",
+        "payroll_audit_cleanup",
+        "workers_comp_audit",
+        "sales_tax_registration",
+        "monthly_sales_tax",
+        "quarterly_sales_tax",
+        "sales_tax_audit",
+        "florida_dr405",
+        "state_local_filings",
+        "irs_notice_review",
+        "penalty_abatement",
+        "irs_account_reconciliation",
+        "eftps_setup",
+        "power_of_attorney_2848",
+        "installment_agreement",
+        "audit_representation",
+        "cash_flow_analysis",
+        "budgeting_forecasting",
+        "cfo_services",
+        "profitability_analysis",
+        "tax_optimization_review",
+        "financial_statement_audit",
+        "compilation_engagement",
+        "review_engagement",
+        "agreed_upon_procedures",
+        "internal_control_review",
+        "internal_control_testing",
+        "specific_accounts_audit",
+        "forensic_accounting",
+        "fraud_examination",
+        "payroll_audit",
+        "sales_tax_audit_rep",
+        "irs_audit_rep",
+        "state_tax_audit",
+        "workers_comp_audit_rep",
+        "nonprofit_compliance_audit",
+        "grant_program_audit",
+        "hud_compliance_audit",
+        "due_diligence_review",
+        "litigation_support",
+        "cost_segregation_review",
+        "benefit_plan_audit",
+        "internal_audit_outsourcing",
+        "risk_assessment",
+        "client_onboarding",
+        "client_offboarding",
+        "document_management",
+        "practice_management_setup",
+        "automation_workflow",
+        "client_portal_setup",
+        "internal_compliance_review"
+      ],
+      "description": "Type of project"
+    },
+    "project_category": {
+      "type": "string",
+      "enum": [
+        "tax_compliance",
+        "entity_structuring",
+        "bookkeeping_accounting",
+        "payroll_employment",
+        "sales_local_tax",
+        "irs_representation",
+        "advisory_cfo",
+        "audit_assurance",
+        "systems_internal"
+      ],
+      "description": "Project category"
+    },
+    "assigned_to_id": {
+      "type": "string",
+      "description": "User ID of assigned team member"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "description": "Name of assigned team member"
+    },
+    "budget_hours": {
+      "type": "number",
+      "description": "Estimated hours for the project"
+    },
+    "budget_amount": {
+      "type": "number",
+      "description": "Budget amount in dollars"
+    },
+    "actual_cost": {
+      "type": "number",
+      "description": "Actual cost incurred"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "default": 0,
+      "description": "Project completion percentage (0-100)"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium",
+      "description": "Project priority"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Project start date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "waiting",
+        "on_hold",
+        "completed"
+      ],
+      "default": "not_started"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a recurring project"
+    },
+    "recurrence_frequency": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "biweekly",
+        "monthly",
+        "quarterly",
+        "annual"
+      ],
+      "description": "Frequency for recurring projects"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "extension_deadline": {
+      "type": "string",
+      "format": "date",
+      "description": "Extended deadline after filing an extension (overrides due_date for urgency calculations)"
+    },
+    "extension_filed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether a tax extension has been filed for this project"
+    },
+    "milestones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "description": "Project milestones"
+    }
+  },
+  "required": [
+    "client_id",
+    "project_category",
+    "project_type",
+    "assigned_to_id",
+    "due_date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        },
+        {
+          "data.assigned_to_id": "{{user.id}}"
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.assigned_to_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

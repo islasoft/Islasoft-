@@ -1,0 +1,16 @@
+{
+  "name": "SyncState",
+  "type": "object",
+  "properties": {
+    "page_token": {
+      "type": "string",
+      "description": "Google Drive Changes API page token for incremental sync"
+    },
+    "last_synced": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the last sync occurred"
+    }
+  },
+  "required": []
+}

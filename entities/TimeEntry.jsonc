@@ -1,0 +1,138 @@
+{
+  "name": "TimeEntry",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "Reference to project"
+    },
+    "project_name": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "staff_id": {
+      "type": "string",
+      "description": "User ID of the staff member"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "hours": {
+      "type": "number"
+    },
+    "description": {
+      "type": "string"
+    },
+    "billable": {
+      "type": "boolean",
+      "default": true
+    },
+    "invoiced": {
+      "type": "boolean",
+      "default": false
+    },
+    "invoice_id": {
+      "type": "string",
+      "description": "Reference to invoice if invoiced"
+    },
+    "submitted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the time entry has been submitted"
+    },
+    "timer_start": {
+      "type": "number",
+      "description": "Timestamp when timer started"
+    },
+    "timer_accumulated": {
+      "type": "number",
+      "default": 0,
+      "description": "Accumulated time in seconds"
+    }
+  },
+  "required": [
+    "project_id",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.staff_id": "{{user.id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.staff_id": "{{user.id}}"
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        },
+        {
+          "data.project_id": {
+            "$in": {
+              "collection": "Project",
+              "field": "id",
+              "filter": {
+                "data.assigned_to_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.staff_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.staff_id": "{{user.id}}"
+        }
+      ]
+    }
+  }
+}

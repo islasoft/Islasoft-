@@ -1,0 +1,86 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "display_name": {
+      "type": "string",
+      "description": "Display name for the user"
+    },
+    "team_category": {
+      "type": "string",
+      "enum": [
+        "cpa",
+        "senior_staff",
+        "staff"
+      ],
+      "description": "Team member category/role"
+    },
+    "billable_rate": {
+      "type": "number",
+      "description": "Hourly billable rate for this team member"
+    },
+    "contractor_form": {
+      "type": "string",
+      "description": "Required contractor form for this team member"
+    },
+    "contractor_hourly_rate": {
+      "type": "number",
+      "description": "Contractor's hourly payment rate"
+    },
+    "contractor_onboarding_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed"
+      ],
+      "default": "pending",
+      "description": "Status of contractor onboarding process"
+    },
+    "contractor_onboarding_completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When contractor completed onboarding"
+    },
+    "w9_file_url": {
+      "type": "string",
+      "description": "URL to uploaded W-9 form"
+    },
+    "bank_name": {
+      "type": "string",
+      "description": "Bank name for payments"
+    },
+    "bank_routing": {
+      "type": "string",
+      "description": "Bank routing number"
+    },
+    "bank_account": {
+      "type": "string",
+      "description": "Bank account number"
+    },
+    "emergency_contact_name": {
+      "type": "string",
+      "description": "Emergency contact name"
+    },
+    "emergency_contact_phone": {
+      "type": "string",
+      "description": "Emergency contact phone"
+    },
+    "notification_preferences": {
+      "type": "object",
+      "description": "User notification preferences for each notification type"
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "Tenant/firm ID this user belongs to"
+    }
+  },
+  "required": [],
+  "rls": {
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

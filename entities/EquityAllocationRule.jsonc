@@ -1,0 +1,137 @@
+{
+  "name": "EquityAllocationRule",
+  "type": "object",
+  "properties": {
+    "equity_partnership_id": {
+      "type": "string",
+      "description": "FK to EquityPartnership"
+    },
+    "name": {
+      "type": "string"
+    },
+    "rule_type": {
+      "type": "string",
+      "enum": [
+        "PRO_RATA",
+        "FIXED_PCT",
+        "PREFERRED_RETURN"
+      ],
+      "default": "PRO_RATA"
+    },
+    "fiscal_year": {
+      "type": "number"
+    },
+    "apply_to_entry_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "preferred_return_rate": {
+      "type": "number"
+    },
+    "fixed_allocations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "partner_name": {
+            "type": "string"
+          },
+          "percentage": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "equity_partnership_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    }
+  }
+}

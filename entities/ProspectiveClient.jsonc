@@ -1,0 +1,149 @@
+{
+  "name": "ProspectiveClient",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Full name for individuals"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name for entities"
+    },
+    "dob": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth (individuals only)"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "zip_code": {
+      "type": "string"
+    },
+    "filing_type": {
+      "type": "string",
+      "enum": [
+        "individual",
+        "entity"
+      ],
+      "description": "Individual or business entity"
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "LLC",
+        "Corporation",
+        "S-Corp",
+        "Partnership",
+        "Sole Proprietorship",
+        "Nonprofit",
+        ""
+      ],
+      "description": "Entity type if filing_type is entity"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Questions or notes from the prospect"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_review",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending_review"
+    },
+    "converted_client_id": {
+      "type": "string",
+      "description": "Client ID after approval"
+    },
+    "reviewed_by_id": {
+      "type": "string"
+    },
+    "reviewed_by_name": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "filing_type"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,327 @@
+{
+  "name": "Client",
+  "type": "object",
+  "properties": {
+    "client_number": {
+      "type": "string",
+      "description": "Client number (I-XXX for individuals, E-XXX for entities)"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company or individual name"
+    },
+    "name": {
+      "type": "string",
+      "description": "First name (for individuals)"
+    },
+    "middle_name": {
+      "type": "string",
+      "description": "Middle name (for individuals)"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Last name (for individuals)"
+    },
+    "dob": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth (for individuals)"
+    },
+    "ssn": {
+      "type": "string",
+      "description": "Social Security Number (for individuals)"
+    },
+    "filing_status": {
+      "type": "string",
+      "enum": [
+        "single",
+        "married_joint",
+        "married_separate",
+        "head_of_household",
+        "qualifying_widow"
+      ],
+      "description": "Tax filing status (for individuals)"
+    },
+    "dependents": {
+      "type": "number",
+      "description": "Number of dependents (for individuals)"
+    },
+    "dl_id": {
+      "type": "string",
+      "description": "Driver's License ID"
+    },
+    "dl_issued": {
+      "type": "string",
+      "format": "date",
+      "description": "Driver's License issued date"
+    },
+    "dl_expire": {
+      "type": "string",
+      "format": "date",
+      "description": "Driver's License expiry date"
+    },
+    "account_type": {
+      "type": "string",
+      "enum": [
+        "checking",
+        "savings"
+      ],
+      "description": "Bank account type"
+    },
+    "contact_person": {
+      "type": "string",
+      "description": "Primary contact person"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "zip_code": {
+      "type": "string"
+    },
+    "group": {
+      "type": "string",
+      "description": "Client group or category"
+    },
+    "ein": {
+      "type": "string",
+      "description": "Employer Identification Number"
+    },
+    "document_number": {
+      "type": "string",
+      "description": "Document number"
+    },
+    "incorporated_as": {
+      "type": "string",
+      "enum": [
+        "LLC",
+        "Corporation",
+        "S-Corp",
+        "Partnership",
+        "Sole Proprietorship",
+        "Nonprofit"
+      ],
+      "description": "How the entity is incorporated"
+    },
+    "taxed_as": {
+      "type": "string",
+      "enum": [
+        "Sole Proprietorship",
+        "Partnership",
+        "S-Corporation",
+        "C-Corporation",
+        "Nonprofit"
+      ],
+      "description": "Tax classification"
+    },
+    "year_end": {
+      "type": "string",
+      "description": "Fiscal year end date (MM/DD)"
+    },
+    "bank_name": {
+      "type": "string"
+    },
+    "bank_routing": {
+      "type": "string"
+    },
+    "bank_account": {
+      "type": "string"
+    },
+    "bank_username": {
+      "type": "string"
+    },
+    "bank_password": {
+      "type": "string"
+    },
+    "eftps_number": {
+      "type": "string"
+    },
+    "eftps_pin": {
+      "type": "string"
+    },
+    "eftps_password": {
+      "type": "string"
+    },
+    "rt_account": {
+      "type": "string"
+    },
+    "rt_username": {
+      "type": "string"
+    },
+    "rt_password": {
+      "type": "string"
+    },
+    "business_partner_number": {
+      "type": "string"
+    },
+    "eserv_fl_username": {
+      "type": "string"
+    },
+    "eserv_fl_password": {
+      "type": "string"
+    },
+    "manager_id": {
+      "type": "string",
+      "description": "User ID of the client manager (CPA/Senior Staff)"
+    },
+    "manager_name": {
+      "type": "string",
+      "description": "Name of the client manager"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "registration_token": {
+      "type": "string",
+      "description": "Unique token for client self-registration"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "quickbooks_customer_id": {
+      "type": "string",
+      "description": "QuickBooks customer ID after syncing"
+    },
+    "quickbooks_synced_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the client was synced to QuickBooks"
+    },
+    "quickbooks_last_synced": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time client was synced with QuickBooks"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Associated Base44 User ID for client portal access"
+    },
+    "drive_folder_id": {
+      "type": "string",
+      "description": "Google Drive main folder ID"
+    },
+    "drive_folder_ids": {
+      "type": "object",
+      "properties": {
+        "main": {
+          "type": "string"
+        },
+        "for_accountant": {
+          "type": "string"
+        },
+        "from_accountant": {
+          "type": "string"
+        },
+        "permanent": {
+          "type": "string"
+        }
+      },
+      "description": "Google Drive folder IDs for different document categories"
+    },
+    "referral_code": {
+      "type": "string",
+      "description": "Unique referral code for this client to share"
+    },
+    "referred_by_client_id": {
+      "type": "string",
+      "description": "ID of the client who referred this client"
+    }
+  },
+  "required": [],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        },
+        {
+          "data.manager_id": "{{user.id}}"
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "data.manager_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "name": "PromoCode",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "Uppercase promo code"
+    },
+    "description": {
+      "type": "string",
+      "description": "Internal label"
+    },
+    "discount_type": {
+      "type": "string",
+      "enum": [
+        "free",
+        "percent",
+        "fixed"
+      ]
+    },
+    "discount_value": {
+      "type": "number",
+      "description": "Percent or dollar amount; ignored if free"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "feature": {
+      "type": "string",
+      "enum": [
+        "partnership_1065",
+        "equity_split_pro"
+      ],
+      "default": "partnership_1065"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "max_uses": {
+      "type": "number",
+      "default": 0,
+      "description": "0 = unlimited"
+    },
+    "times_used": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "code"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

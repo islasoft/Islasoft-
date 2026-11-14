@@ -1,0 +1,182 @@
+{
+  "name": "EngagementLetter",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Reference to Client"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "client_email": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full text content of the engagement letter"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_review",
+        "approved",
+        "sent",
+        "signed",
+        "declined"
+      ],
+      "default": "draft",
+      "description": "Current status of the engagement letter"
+    },
+    "created_by_id": {
+      "type": "string"
+    },
+    "created_by_name": {
+      "type": "string"
+    },
+    "reviewed_by_id": {
+      "type": "string",
+      "description": "CPA who approved the letter"
+    },
+    "reviewed_by_name": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "review_notes": {
+      "type": "string",
+      "description": "CPA review comments"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the letter was sent for signature"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the client signed"
+    },
+    "docuseal_template_id": {
+      "type": "string"
+    },
+    "docuseal_submission_id": {
+      "type": "string"
+    },
+    "docuseal_signer_link": {
+      "type": "string"
+    },
+    "signed_document_drive_id": {
+      "type": "string",
+      "description": "Google Drive file ID of the signed PDF"
+    },
+    "signed_document_url": {
+      "type": "string"
+    },
+    "fiscal_year": {
+      "type": "string",
+      "description": "Tax/service year this letter covers"
+    },
+    "services_covered": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of services described in the letter"
+    }
+  },
+  "required": [
+    "client_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "data.created_by_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

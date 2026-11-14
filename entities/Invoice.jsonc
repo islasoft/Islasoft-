@@ -1,0 +1,286 @@
+{
+  "name": "Invoice",
+  "type": "object",
+  "properties": {
+    "invoice_number": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "client_email": {
+      "type": "string",
+      "format": "email"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "project_name": {
+      "type": "string"
+    },
+    "issue_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "line_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string"
+          },
+          "project_name": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "hours": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Individual project line items"
+    },
+    "expense_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Manual expense line items"
+    },
+    "time_entry_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Time entries included in this invoice"
+    },
+    "total_hours": {
+      "type": "number"
+    },
+    "hourly_rate": {
+      "type": "number"
+    },
+    "subtotal": {
+      "type": "number"
+    },
+    "merchant_fee": {
+      "type": "number",
+      "description": "3% merchant processing fee"
+    },
+    "tax_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "tax_amount": {
+      "type": "number"
+    },
+    "total": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "paid",
+        "overdue",
+        "cancelled"
+      ],
+      "default": "draft"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "cpacharge_payment_url": {
+      "type": "string",
+      "description": "CPA Charge payment link"
+    },
+    "last_reminder_sent": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reminder_count": {
+      "type": "number",
+      "default": 0
+    },
+    "reminder_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sent_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sent_by": {
+            "type": "string"
+          },
+          "reminder_type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false
+    },
+    "recurrence_frequency": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "biweekly",
+        "monthly",
+        "quarterly",
+        "annually"
+      ]
+    },
+    "next_invoice_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "recurrence_end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "parent_invoice_id": {
+      "type": "string"
+    },
+    "quickbooks_invoice_id": {
+      "type": "string"
+    },
+    "quickbooks_synced_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "quickbooks_payment_received_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "quickbooks_last_synced": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.user_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

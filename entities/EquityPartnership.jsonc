@@ -1,0 +1,212 @@
+{
+  "name": "EquityPartnership",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "FK to Client entity"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Partnership name"
+    },
+    "tax_year": {
+      "type": "number"
+    },
+    "period_start_label": {
+      "type": "string"
+    },
+    "period_end_label": {
+      "type": "string"
+    },
+    "partners": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "beginning_capital": {
+            "type": "number"
+          },
+          "profit_percentage": {
+            "type": "number"
+          },
+          "loss_percentage": {
+            "type": "number"
+          },
+          "capital_percentage": {
+            "type": "number"
+          },
+          "additional_contributions": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "distribution_lines": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "other_deductions": {
+            "type": "number"
+          },
+          "other_increases": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "income_lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "allocation_type": {
+            "type": "string",
+            "enum": [
+              "profit",
+              "loss"
+            ]
+          }
+        }
+      }
+    },
+    "deduction_lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "contribution_lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "in_review",
+        "final"
+      ],
+      "default": "draft"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "client_id",
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        },
+        {
+          "data.client_id": {
+            "$in": {
+              "collection": "Client",
+              "field": "id",
+              "filter": {
+                "data.manager_id": "{{user.id}}"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

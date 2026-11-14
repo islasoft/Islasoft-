@@ -1,0 +1,141 @@
+{
+  "name": "EngagementLetterTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Template clause name (e.g., 'LLC Liability Limitation', 'Sole Prop Schedule C')"
+    },
+    "clause_type": {
+      "type": "string",
+      "enum": [
+        "scope_of_services",
+        "client_responsibilities",
+        "fees_and_payment",
+        "limitation_of_liability",
+        "confidentiality",
+        "professional_standards",
+        "engagement_period",
+        "florida_specific",
+        "entity_specific",
+        "general"
+      ],
+      "description": "Category of this clause"
+    },
+    "applicable_entity_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "LLC",
+          "Corporation",
+          "S-Corp",
+          "Partnership",
+          "Sole Proprietorship",
+          "Nonprofit",
+          "Individual",
+          "all"
+        ]
+      },
+      "description": "Which entity types this clause applies to. 'all' means universal."
+    },
+    "applicable_services": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Which service types trigger inclusion of this clause (e.g., 'tax', 'bookkeeping', 'audit', 'payroll'). Empty means always include."
+    },
+    "content": {
+      "type": "string",
+      "description": "Full text of the clause, ready to be inserted into the letter"
+    },
+    "is_required": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this clause is mandatory (Florida law / AICPA) or optional"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this template is currently in use"
+    },
+    "legal_reference": {
+      "type": "string",
+      "description": "Cite the Florida statute, AICPA standard, or IRS regulation that requires this clause (e.g., 'Fla. Stat. \u00a7 473.315', 'AICPA ET \u00a7 1.700')"
+    },
+    "sort_order": {
+      "type": "number",
+      "default": 100,
+      "description": "Display/insertion order within the letter"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Internal notes for the CPA team about this clause"
+    }
+  },
+  "required": [
+    "name",
+    "clause_type",
+    "content"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "senior_staff"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "staff"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "team_category": "cpa"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
